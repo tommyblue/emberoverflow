@@ -1,5 +1,6 @@
 App = Ember.Application.create({
   LOG_TRANSITIONS: true,
+  LOG_RESOLVER: true,
   currentUser: localStorage['currentUser']
 });
 

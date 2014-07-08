@@ -19,14 +19,21 @@ module("Integration tests", {
 });
 
 // QUnit test case
-test("/", function() {
-  // async helper telling the application to go to the '/' route
+test("index page has a title and a list of questions", function() {
   visit("/");
 
-  // helper waiting the application is idle before running the callback
   andThen(function() {
-    equal(find("h2").text(), "Welcome to Emberoverflow", "Application header is rendered");
-    equal(find("ul:not(.nav) > li").length, 2, "There are two items in the list");
+    equal(
+      find("h2").text(),
+      "Welcome to Emberoverflow",
+      "Application header is rendered"
+    );
+
+    notEqual(
+      find("ul:not(.nav) > li").length,
+      0,
+      "There are questions in the list"
+    );
   });
 });
 
@@ -63,6 +70,31 @@ test("user will be able to log in", function() {
       find("p").text(),
       "You are already signed-in!",
       "Signed-in message rendered"
+    );
+  });
+});
+
+
+test("signed-in user can ask a new question", function(){
+  localStorage['currentUser'] = 201;
+  App.set('currentUser', 201);
+
+  visit("/ask-question");
+  fillIn("#title", "Question title");
+  fillIn("#question", "Question");
+  click("button");
+
+  andThen(function(){
+    equal(
+      find("h2").text(),
+      "Question title",
+      "Question title is rendered"
+    );
+
+    equal(
+      find("p:first").text().replace(/\s+/g, ''),
+      "Question",
+      "Question is rendered"
     );
   });
 });

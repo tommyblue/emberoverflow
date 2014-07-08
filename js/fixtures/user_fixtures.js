@@ -10,5 +10,10 @@ App.User.FIXTURES = [
     fullname: 'Tomster the Hamster',
     email: 'tomster@hamster.com',
     questions: [102]
+  },
+  {
+    id: 203,
+    fullname: 'Random guy',
+    email: 'random@gmail.com'
   }
 ];
