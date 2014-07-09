@@ -49,19 +49,34 @@
     {{outlet}}
   </script>
 
-  <script type="text/x-handlebars" id="index">
-    <h2>{{siteTitle}}</h2>
-    <p>It is {{currentTime}}</p>
-    <ul>
-    {{#each}}
-      <li>
-        {{#link-to 'question' this}}
-          {{title}}
-        {{/link-to}}
-        (asked by {{author.fullname}})
-      </li>
-    {{/each}}
-    </ul>
+  <script type="text/x-handlebars" id="components/question-preview">
+    {{#link-to 'question' question}}
+      {{question.title}}
+    {{/link-to}}
+
+    {{#if hasAnswers}}
+      <span class="label label-default">{{answersCount}} {{pluralForm}}</span>
+    {{/if}}
+
+    (asked by {{question.author.fullname}})
+  </script>
+
+  <script type="text/x-handlebars" id="questions">
+    <div class="row">
+      <div class="col-md-6">
+        <h2>{{siteTitle}}</h2>
+        <p>It is {{currentDate "LL"}}</p>
+        <h3>Latest questions</h3>
+        <ul>
+        {{#each}}
+          {{question-preview question=this}}
+        {{/each}}
+        </ul>
+      </div>
+      <div class="col-md-6">
+        {{outlet}}
+      </div>
+    </div>
   </script>
 
   <script type="text/x-handlebars" id="about">
@@ -78,24 +93,10 @@
     </div>
   </script>
 
-  <script type="text/x-handlebars" id="question">
+  <script type="text/x-handlebars" id="answers">
     <div class="row">
       <div class="col-md-8">
-        <h2>{{title}}</h2>
-
-        <p>
-          {{question}}
-        </p>
-
-        <p>
-          Asked by {{author.fullname}}
-        </p>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col-md-8">
-        {{#each answers}}
+        {{#each}}
           <div class="panel panel-default">
             <div class="panel-heading">
               {{author.fullname}} on {{date}}
@@ -110,9 +111,50 @@
         {{/each}}
       </div>
     </div>
+  </script>
 
+  <script type="text/x-handlebars" id="question">
+    <div class="row">
+      <div class="col-md-8">
+        <h2>{{title}}</h2>
+
+        {{#if isEditing}}
+          <form {{action submitEdits on="submit"}}>
+            <div class="form-group">
+              <label for="title">Question title</label>
+              {{textarea
+                id="question"
+                value=question
+                classNames="form-control"
+                placeholder="Describe your problem in as much detail as possible"}}
+            </div>
+            <button class="btn btn-primary" type="submit">Update question</button>
+          </form>
+        {{else}}
+          <p id="question">
+            {{question}}
+          </p>
+
+          <p>
+            Asked by {{author.fullname}}
+          </p>
+
+          {{#if canEditQuestion}}
+            <p>
+              <a href="#" {{action toggleEditQuestion}}>Edit question</a>
+            </p>
+          {{/if}}
+        {{/if}}
+      </div>
+    </div>
+
+    {{render 'answers' answers}}
     <hr>
 
+    {{view App.AnswerFormView}}
+  </script>
+
+  <script type="text/x-handlebars" id="answer_form">
     <div class="row">
       <div class="col-md-8">
         <h4>Submit your answer:</h4>
@@ -217,8 +259,10 @@
   <script src="js/libs/ember-1.6.0.js"></script>
   <script src="http://builds.emberjs.com/beta/ember-data.js"></script>
   <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.1/moment.min.js"></script>
   <!-- Ember App -->
   <script src="js/app.js"></script>
+  <script src="js/helpers.js"></script>
   <!-- Models -->
   <script src="js/models/question_model.js"></script>
   <script src="js/models/user_model.js"></script>
@@ -230,10 +274,15 @@
   <!-- Routes -->
   <script src="js/routes/application_routes.js"></script>
   <script src="js/routes/question_routes.js"></script>
+  <!-- Components -->
+  <script src="js/components/question_components.js"></script>
   <!-- Controllers -->
   <script src="js/controllers/application_controllers.js"></script>
   <script src="js/controllers/sign_in_controller.js"></script>
   <script src="js/controllers/question_controller.js"></script>
+  <script src="js/controllers/answer_controllers.js"></script>
+  <!-- Views -->
+  <script src="js/views/answer_views.js"></script>
   <!-- to activate the test runner, add the "?test" query string parameter -->
   <script src="tests/runner.js"></script>
 </body>

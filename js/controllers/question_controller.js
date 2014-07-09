@@ -1,3 +1,11 @@
+App.QuestionsController = Ember.ArrayController.extend({
+  siteTitle: 'Welcome to Emberoverflow',
+
+  currentTime: (function() {
+    return new Date;
+  }).property()
+});
+
 App.SetAuthorMixin = Ember.Mixin.create({
   needs: ['application'],
 
@@ -43,8 +51,22 @@ App.AskQuestionController = Ember.ArrayController.extend(App.SetAuthorMixin, {
 
 App.QuestionController = Ember.ObjectController.extend(App.SetAuthorMixin, {
   needs: ['application'],
+  isEditing: false,
+
+  canEditQuestion: function() {
+    return this.get('author.id') == App.currentUser;
+  }.property('model'),
 
   actions: {
+    toggleEditQuestion: function() {
+      this.toggleProperty('isEditing');
+    },
+
+    submitEdits: function() {
+      this.toggleProperty('isEditing'),
+      this.get('model').save();
+    },
+
     answerQuestion: function() {
       var answer = this.store.createRecord('answer', {
         answer: this.get('answer'),
